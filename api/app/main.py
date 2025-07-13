@@ -6,10 +6,13 @@ from app.routers.product import router
 
 app = FastAPI()
 app.include_router(router, prefix="/api")
+
+
 @app.get("/")
 async def read_index():
     return FileResponse("app/static/index.html")
-	
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

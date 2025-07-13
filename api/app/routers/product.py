@@ -6,13 +6,16 @@ from app.schemas.product import ProductCreate, ProductUpdate
 
 router = APIRouter()
 
+
 @router.get("/products")
 def index(db: Session = Depends(get_db)):
     return db.query(Product).all()
 
+
 @router.get("/products/{id}")
 def get(id: int, db: Session = Depends(get_db)):
     return db.query(Product).filter(Product.id == id).first()
+
 
 @router.post("/products")
 def create(payload: ProductCreate, db: Session = Depends(get_db)):
@@ -22,6 +25,7 @@ def create(payload: ProductCreate, db: Session = Depends(get_db)):
     db.refresh(product)
     return product
 
+
 @router.put("/products/{id}")
 def update(id: int, payload: ProductUpdate, db: Session = Depends(get_db)):
     product = db.query(Product).filter(Product.id == id).first()
@@ -30,6 +34,7 @@ def update(id: int, payload: ProductUpdate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(product)
     return product
+
 
 @router.delete("/products/{id}")
 def delete(id: int, db: Session = Depends(get_db)):
