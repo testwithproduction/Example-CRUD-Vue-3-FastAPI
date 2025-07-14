@@ -1,9 +1,45 @@
-__pycache__/
-api/.venv
-api/.vscode
-view/.vscode
-view/node_modules
-view/package-lock.json
+# Common
+.DS_Store
+.vscode/
 .env
 
+# For python
+.venv
+__pycache__/
+
+# For Vue.js
 .vite
+node_modules/
+package-lock.json
+
+# Go specific
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Go workspace file
+go.work.sum
+
+# Go build artifacts
+api-go/main
+api-go/*.exe
+api-go/*.dll
+api-go/*.so
+api-go/*.dylib
+
+# Go test binary, built with `go test -c`
+api-go/*.test
+
+# Output of the go coverage tool
+api-go/coverage.txt
+
+# Go workspace file
+api-go/go.work
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
