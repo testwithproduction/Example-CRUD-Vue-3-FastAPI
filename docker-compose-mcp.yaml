@@ -1,3 +1,6 @@
+include:
+  - docker-compose.mysql.yml
+
 services:
   mcp-server:
     build:
@@ -7,12 +10,7 @@ services:
       - "8080:8080"
     environment:
       - MCP_PORT=8080
-      - DATABASE_URL=mysql://crud_user:crud_password@mysql:3306/crud_db?charset=utf8mb4&parseTime=True&loc=Local
-      - DB_USER=crud_user
-      - DB_PASSWORD=crud_password
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_DATABASE=crud_db
+      - DATABASE_URL=crud_user:crud_password@tcp(mysql:3306)/crud_db?charset=utf8mb4&parseTime=True&loc=Local
     depends_on:
       mysql:
         condition: service_healthy
@@ -23,7 +21,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
-  # Reference to existing MySQL service
-  mysql:
-    external: true 

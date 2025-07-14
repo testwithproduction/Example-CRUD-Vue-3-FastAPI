@@ -1,0 +1,10 @@
+services:
+  frontend:
+    build: ./view
+    container_name: crud_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./view:/app
+      - /app/node_modules
+    restart: unless-stopped
