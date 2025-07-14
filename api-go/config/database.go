@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -16,7 +16,7 @@ var DB *gorm.DB
 func InitDB() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Error loading .env file, using default values")
+		slog.Warn("Error loading .env file, using default values", "err", err)
 	}
 
 	var dsn string
@@ -32,20 +32,21 @@ func InitDB() {
 		)
 	}
 
-	log.Println("Connecting to database:", dsn)
+	slog.Info("Connecting to database", "dsn", dsn)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		slog.Error("Failed to connect to database", "err", err)
+		os.Exit(1)
 	}
 
 	DB = db
-	log.Println("Database connected successfully")
+	slog.Info("Database connected successfully")
 
 	// Instrument GORM with OpenTelemetry
 	if err := DB.Use(otelgorm.NewPlugin()); err != nil {
-		log.Println("Failed to register otelgorm plugin:", err)
+		slog.Warn("Failed to register otelgorm plugin", "err", err)
 	} else {
-		log.Println("otelgorm plugin registered for OpenTelemetry tracing")
+		slog.Info("otelgorm plugin registered for OpenTelemetry tracing")
 	}
 } 

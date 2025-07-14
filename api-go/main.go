@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 
 	"api-go/config"
 	"api-go/models"
@@ -23,12 +23,17 @@ func main() {
 	if otlpEndpoint == "" {
 		otlpEndpoint = "localhost:4317" // default for Jaeger/OTEL collector gRPC
 	}
+	// Initialize slog logger with JSON output
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+
 	exp, err := otlptracegrpc.New(ctx,
 		otlptracegrpc.WithEndpoint(otlpEndpoint),
 		otlptracegrpc.WithInsecure(),
 	)
 	if err != nil {
-		log.Fatalf("failed to create OTLP exporter: %v", err)
+		slog.Error("failed to create OTLP exporter", "err", err)
+		os.Exit(1)
 	}
 	resource := resource.NewWithAttributes(
 		"",
@@ -42,7 +47,8 @@ func main() {
 	otel.SetTracerProvider(tracerProvider)
 	defer func() {
 		if err = tracerProvider.Shutdown(ctx); err != nil {
-			log.Fatalf("failed to shutdown tracer provider: %v", err)
+			slog.Error("failed to shutdown tracer provider", "err", err)
+			os.Exit(1)
 		}
 	}()
 	// --- End OpenTelemetry setup ---
@@ -52,17 +58,19 @@ func main() {
 	// Auto migrate the schema
 	err = config.DB.AutoMigrate(&models.Product{})
 	if err != nil {
-		log.Fatal("Failed to migrate database:", err)
+		slog.Error("Failed to migrate database", "err", err)
+		os.Exit(1)
 	}
-	log.Println("Database migration completed")
+	slog.Info("Database migration completed")
 
 	// Setup routes
 	r := routes.SetupRoutes()
 
 	// Start server
-	log.Println("Server starting on :8000")
+	slog.Info("Server starting", "addr", ":8000")
 	err = r.Run(":8000")
 	if err != nil {
-		log.Fatal("Failed to start server:", err)
+		slog.Error("Failed to start server", "err", err)
+		os.Exit(1)
 	}
 } 
