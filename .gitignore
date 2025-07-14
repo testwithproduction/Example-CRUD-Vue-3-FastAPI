@@ -4,3 +4,6 @@ api/.vscode
 view/.vscode
 view/node_modules
 view/package-lock.json
+.env
+
+.vite
