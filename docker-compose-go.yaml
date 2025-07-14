@@ -24,6 +24,7 @@ services:
     container_name: crud_api_go
     environment:
       - DATABASE_URL=crud_user:crud_password@tcp(mysql:3306)/crud_db?charset=utf8mb4&parseTime=True&loc=Local
+      - OTEL_EXPORTER_OTLP_ENDPOINT=jaeger:4317
     ports:
       - "8000:8000"
     depends_on:
@@ -43,6 +44,17 @@ services:
       - /app/node_modules
     depends_on:
       - api-go
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.71.0
+    container_name: jaeger
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "4317:4317"    # OTLP gRPC endpoint
+      - "6831:6831/udp" # Agent (optional)
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
     restart: unless-stopped
 
 volumes:

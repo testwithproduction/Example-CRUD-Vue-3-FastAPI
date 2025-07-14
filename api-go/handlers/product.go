@@ -12,7 +12,7 @@ import (
 // GetProducts returns all products
 func GetProducts(c *gin.Context) {
 	var products []models.Product
-	result := config.DB.Find(&products)
+	result := config.DB.WithContext(c.Request.Context()).Find(&products)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
@@ -25,7 +25,7 @@ func GetProduct(c *gin.Context) {
 	id := c.Param("id")
 	var product models.Product
 	
-	result := config.DB.First(&product, id)
+	result := config.DB.WithContext(c.Request.Context()).First(&product, id)
 	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 		return
@@ -48,7 +48,7 @@ func CreateProduct(c *gin.Context) {
 		Price: productCreate.Price,
 	}
 	
-	result := config.DB.Create(&product)
+	result := config.DB.WithContext(c.Request.Context()).Create(&product)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
@@ -63,7 +63,7 @@ func UpdateProduct(c *gin.Context) {
 	var product models.Product
 	
 	// Check if product exists
-	result := config.DB.First(&product, id)
+	result := config.DB.WithContext(c.Request.Context()).First(&product, id)
 	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 		return
@@ -79,7 +79,7 @@ func UpdateProduct(c *gin.Context) {
 	product.Name = productUpdate.Name
 	product.Price = productUpdate.Price
 	
-	result = config.DB.Save(&product)
+	result = config.DB.WithContext(c.Request.Context()).Save(&product)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
@@ -92,7 +92,7 @@ func UpdateProduct(c *gin.Context) {
 func DeleteProduct(c *gin.Context) {
 	id := c.Param("id")
 	
-	result := config.DB.Delete(&models.Product{}, id)
+	result := config.DB.WithContext(c.Request.Context()).Delete(&models.Product{}, id)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return

@@ -5,10 +5,14 @@ import (
 	"api-go/middleware"
 
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 func SetupRoutes() *gin.Engine {
 	r := gin.Default()
+
+	// Add OpenTelemetry middleware
+	r.Use(otelgin.Middleware("api-go"))
 
 	// Add CORS middleware
 	r.Use(middleware.CORS())

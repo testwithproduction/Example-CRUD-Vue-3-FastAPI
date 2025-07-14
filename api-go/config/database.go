@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -40,4 +41,11 @@ func InitDB() {
 
 	DB = db
 	log.Println("Database connected successfully")
+
+	// Instrument GORM with OpenTelemetry
+	if err := DB.Use(otelgorm.NewPlugin()); err != nil {
+		log.Println("Failed to register otelgorm plugin:", err)
+	} else {
+		log.Println("otelgorm plugin registered for OpenTelemetry tracing")
+	}
 } 
