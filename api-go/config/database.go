@@ -14,6 +14,7 @@ import (
 var DB *gorm.DB
 
 func InitDB() {
+	slog.Debug("Loading .env file")
 	err := godotenv.Load()
 	if err != nil {
 		slog.Warn("Error loading .env file, using default values", "err", err)
@@ -22,6 +23,7 @@ func InitDB() {
 	var dsn string
 	if os.Getenv("DATABASE_URL") != "" {
 		dsn = os.Getenv("DATABASE_URL")
+		slog.Debug("Using DATABASE_URL from environment", "dsn", dsn)
 	} else {
 		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 			os.Getenv("DB_USER"),
@@ -30,6 +32,7 @@ func InitDB() {
 			os.Getenv("DB_PORT"),
 			os.Getenv("DB_DATABASE"),
 		)
+		slog.Debug("Built DSN from environment variables", "dsn", dsn)
 	}
 
 	slog.Info("Connecting to database", "dsn", dsn)
@@ -44,6 +47,7 @@ func InitDB() {
 	slog.Info("Database connected successfully")
 
 	// Instrument GORM with OpenTelemetry
+	slog.Debug("Registering otelgorm plugin for OpenTelemetry tracing")
 	if err := DB.Use(otelgorm.NewPlugin()); err != nil {
 		slog.Warn("Failed to register otelgorm plugin", "err", err)
 	} else {

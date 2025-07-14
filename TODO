@@ -1,2 +1,5 @@
 AuthN
 AuthZ
+TLS everywhere
+no hard coded secrets in YAML
+use jaeger v2

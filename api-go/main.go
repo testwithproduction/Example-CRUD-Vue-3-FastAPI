@@ -20,13 +20,16 @@ func main() {
 	// --- OpenTelemetry + OTLP setup ---
 	ctx := context.Background()
 	otlpEndpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+	slog.Debug("Loaded OTEL_EXPORTER_OTLP_ENDPOINT", "otlpEndpoint", otlpEndpoint)
 	if otlpEndpoint == "" {
 		otlpEndpoint = "localhost:4317" // default for Jaeger/OTEL collector gRPC
+		slog.Debug("OTLP endpoint not set, using default", "default", otlpEndpoint)
 	}
-	// Initialize slog logger with JSON output
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	// Initialize slog logger with JSON output and debug level
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	slog.SetDefault(logger)
 
+	slog.Debug("Initializing OTLP exporter", "endpoint", otlpEndpoint)
 	exp, err := otlptracegrpc.New(ctx,
 		otlptracegrpc.WithEndpoint(otlpEndpoint),
 		otlptracegrpc.WithInsecure(),
@@ -53,9 +56,11 @@ func main() {
 	}()
 	// --- End OpenTelemetry setup ---
 	// Initialize database
+	slog.Debug("Initializing database connection")
 	config.InitDB()
 
 	// Auto migrate the schema
+	slog.Debug("Running database migrations")
 	err = config.DB.AutoMigrate(&models.Product{})
 	if err != nil {
 		slog.Error("Failed to migrate database", "err", err)
@@ -64,6 +69,7 @@ func main() {
 	slog.Info("Database migration completed")
 
 	// Setup routes
+	slog.Debug("Setting up HTTP routes")
 	r := routes.SetupRoutes()
 
 	// Start server

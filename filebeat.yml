@@ -1,0 +1,29 @@
+filebeat.inputs:
+- type: filestream
+  id: api-go-id
+  paths:
+    - "/var/lib/docker/containers/*/*.log"
+  parsers:
+    - container:
+        stream: stdout  
+
+processors:
+  - rename:
+      fields:
+        - from: "message"
+          to: "_msg"
+      ignore_missing: true
+      fail_on_error: false
+
+output.elasticsearch:
+  hosts: ["http://victorialogs:9428/insert/elasticsearch/"]
+  index: "api-go-logs"
+
+setup.template.enabled: true
+setup.template.name: "api-go-logs"
+setup.template.pattern: "api-go-logs-*"
+setup.ilm.enabled: false
+
+# enable debug logging
+#logging.level: debug
+#logging.to_stdout: true
